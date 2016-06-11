@@ -1,24 +1,5 @@
-# README
+Files:
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
-
-Things you may want to cover:
-
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+1. Default path in RecorderDemo.js for workers is 'assets/
+2. WebAudioRecorder.min.js and WebAudioRecorderMp3.min.js must in the same directory level as 1 -> public/assets
+3. Mp3LameEncoder.min.js.mem must be in same directory level as the HTML that calls audio -> public
