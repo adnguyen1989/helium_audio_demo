@@ -40,10 +40,19 @@ var
     microphoneLevel.connect(mixer);
     // mixer.connect(audioContext.destination);
 
+
+
 // audio recorder object
 var audioRecorder = new WebAudioRecorder(mixer, {
   workerDir: 'assets/',
-  encoding: "mp3"
+  encoding: "mp3",
+  onEncoderLoading: function(recorder, encoding) {
+    $modalLoading
+      .find('.modal-title')
+      .html("Loading " + encoding.toUpperCase() + " encoder ...");
+    $modalLoading.modal('show');
+  },
+  onEncoderLoaded: function() { $modalLoading.modal('hide'); }
 });
 
 // obtaining microphone input
