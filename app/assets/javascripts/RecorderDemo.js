@@ -44,7 +44,7 @@ var
 
 // audio recorder object
 var audioRecorder = new WebAudioRecorder(mixer, {
-  workerDir: 'assets/javascripts/',
+  workerDir: 'assets/',
   encoding: "mp3",
   onEncoderLoading: function(recorder, encoding) {
     $modalLoading
