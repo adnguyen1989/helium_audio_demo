@@ -43,6 +43,7 @@ var
 // audio recorder object
 var audioRecorder = new WebAudioRecorder(mixer, {
   workerDir: 'assets/',
+  encoding: "mp3"
 });
 
 // obtaining microphone input
@@ -126,7 +127,6 @@ function disableControlsOnRecord(disabled) {
 function startRecording() {
   var level = $microphoneLevel.val() / 100;
   microphoneLevel.gain.value = level * level;
-  audioRecorder.setEncoding("mp3");
   $recording.removeClass('hidden');
   $record.html('STOP');
   $cancel.removeClass('hidden');
