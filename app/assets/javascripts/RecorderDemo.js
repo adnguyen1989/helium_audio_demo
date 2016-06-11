@@ -133,8 +133,8 @@ function startRecording() {
   disableControlsOnRecord(true);
   audioRecorder.setOptions({
     timeLimit: 1200,
-    encodeAfterRecord: false,
-    progressInterval: 1000,
+    encodeAfterRecord: true,
+    // progressInterval: 1000,
     mp3: { bitRate: 320 }
   });
   audioRecorder.startRecording();
