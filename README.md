@@ -1,5 +1,10 @@
 DOES NOT WORK IN SAFARI /IE UNTIL GETUSERMEDIA IS MADE AVAILABLE
 
+Demo
+===
+
+mighty-beyond-32627.herokuapp.com
+
 AWS setup
 ===
 
@@ -7,6 +12,7 @@ AWS setup
 2. Create an access key and secret: http://docs.aws.amazon.com/general/latest/gr/managing-aws-access-keys.html
 3. Note the bucket name and region name (NOTE: Tokyo is a REGION. We need REGION NAME, which is ap-northeast-1). Find region name here: http://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region
 4. Under Permissions -> CORS, paste the following:
+
     ```
     <?xml version="1.0" encoding="UTF-8"?>
     <CORSConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
@@ -31,21 +37,28 @@ Rails setup
 
 1. Add gem 'aws-sdk', '~> 2' to Gemfile
 2. Add this line to assets.rb to enable precompilation of RecorderDemo.js
+
     ```
     Rails.application.config.assets.precompile += %w( RecorderDemo.js )
     ```
+
 3. Add this line to development.rb and production.rb to enable serving of assets in the public folder
+
     ```
     config.public_file_server.enabled = true
     ```
+
 4. Add the following configuration to application.yml (Figaro) for AWS
+
     ```
     AWS_REGION: ap-northeast-1
     AWS_S3_BUCKET: testaudiodemo
     AWS_ACCESS_KEY_ID: AKIAJIICJFKAHTSN7HXA
     AWS_SECRET_ACCESS_KEY: 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
     ```
+
 5. Create config/initializers/aws.rb and add the following code
+
     ```
     require 'aws-sdk'
 
@@ -67,6 +80,7 @@ It contains:
 1. WebAudioRecorder.min.js and WebAudioRecorderMp3.min.js, which should be placed in public/assets. There is no need to declare WebAudioRecorderMp3.min.js directly in HTML since WebAudioRecord.min.js will auto-load it as long as they are in the same directory.
 2. Mp3LameEncoder.min.js.mem must be in same directory level as the HTML that includes the other javascript files. Place it in both public and public/assets for local testing (Firefox and Chrome load files differently in local)
 3. RecorderDemo.js, the application-specific JS, should be in app/assets/javascripts. This should be the last in the javascript declaration
+
     ```
     <script src="/assets/WebAudioRecorder.min.js"></script>
     <%= javascript_include_tag "RecorderDemo" %>
