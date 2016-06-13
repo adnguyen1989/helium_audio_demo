@@ -86,6 +86,16 @@ It contains:
     <%= javascript_include_tag "RecorderDemo" %>
     ```
 
+4. RecoderDemo.js contains all of the custom code for our application. High level flow is this
+    1. When microphone button is clicked, enable microphone input permission prompt
+    2. Initialize the audioRecorder object with directory of workers (WebAudioRecorderMp3.min.js) and encoding type (Mp3)
+    3. When record button is clicked, set options of the audioRecorder
+        1. timeLimit: maximum length of audio in seconds
+        2. encodeAfterRecord: encode to MP3 during (false) or after completion (true)
+        3. progressInterval: only applicable if #2 is true. set how quickly the progress bar updates
+        4. bufferSize: use browser's default or 1024
+        5. birate: the bitrate of MP3. If set at 160, one minute = 1 MB
+
 How it works
 ===
 

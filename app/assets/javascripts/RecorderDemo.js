@@ -124,7 +124,7 @@ function startRecording() {
     timeLimit: 1200,
     encodeAfterRecord: false,
     progressInterval: 1000,
-    bufferSize: 1024,
+    bufferSize: defaultBufSz || 1024,
     mp3: { bitRate: 160 }
   });
   audioRecorder.startRecording();
