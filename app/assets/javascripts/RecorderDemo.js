@@ -6,13 +6,14 @@ navigator.getUserMedia =
   navigator.getUserMedia ||
   navigator.webkitGetUserMedia ||
   navigator.mozGetUserMedia ||
-  navigator.msGetUserMedia;
+  navigator.msGetUserMedia ||
+  navigator.mediaDevices.getUserMedia;
 
 // URL shim
 window.URL = window.URL || window.webkitURL;
 
 // audio context + .createScriptProcessor shim
-var audioContext = new AudioContext;
+var audioContext = new (window.AudioContext || window.webkitAudioContext)
 if (audioContext.createScriptProcessor == null)
   audioContext.createScriptProcessor = audioContext.createJavaScriptNode;
 
@@ -27,10 +28,10 @@ var $microphone = $('#microphone'),
     $recordingList = $('#recording-list')
     $modalLoading = $('#modal-loading'),
     $modalProgress = $('#modal-progress'),
+    $blobID = 0,
     $modalError = $('#modal-error');
 
     $microphoneLevel.attr('disabled', false);
-
 var
     microphone = undefined,     // obtained by user click
     microphoneLevel = audioContext.createGain(),
@@ -40,7 +41,11 @@ var
     microphoneLevel.connect(mixer);
     // mixer.connect(audioContext.destination);
 
-
+ defaultBufSz = (function() {
+    var processor;
+    processor = audioContext.createScriptProcessor(void 0, 2, 2);
+    return processor.bufferSize;
+  })();
 
 // audio recorder object
 var audioRecorder = new WebAudioRecorder(mixer, {
@@ -74,9 +79,10 @@ $microphone.click(function() {
 
 // save/delete recording
 function saveRecording(blob, encoding) {
+  $blobID = $blobID + 1
   var time = new Date(),
       url = URL.createObjectURL(blob),
-      html = "<p recording='" + url + "'>" +
+      html = "<p id='recording-no-" + $blobID + "' recording='" + url + "'>" +
              "<audio controls src='" + url + "'></audio> " +
              " (" + encoding.toUpperCase() + ") " +
              time +
@@ -84,18 +90,109 @@ function saveRecording(blob, encoding) {
              "' download='recording." +
              encoding +
              "'>Save...</a> " +
-             "<button class='btn btn-danger' recording='" +
+             "<button class='btn btn-danger delete-button' id='delete-blob" + $blobID + "'recording='" +
              url +
-             "'>Delete</button>" +
+             "'>Delete</button> " +
+             "<button class='btn upload-button' id='upload-blob" + $blobID + "' recording='" +
+             url +
+             "'>Upload</button>" +
              "</p>";
   $recordingList.prepend($(html));
+  $("#upload-blob"+$blobID).click(function(event){
+    uploadRecording(event);
+  })
+
+  $("#delete-blob"+$blobID).click(function(event){
+    deleteRecording(event)
+  })
 }
 
-$recordingList.on('click', 'button', function(event) {
+
+
+function deleteRecording(event){
   var url = $(event.target).attr('recording');
-  $("p[recording='" + url + "']").remove();
-  URL.revokeObjectURL(url);
-});
+      $("p[recording='" + url + "']").remove();
+      URL.revokeObjectURL(url);
+}
+
+function uploadRecording(event){
+  var url = $(event.target).attr('recording');
+  var xhr = new XMLHttpRequest();
+  var myBlob;
+  xhr.open('GET', url, true);
+  xhr.setRequestHeader("Content-type",  "application/x-www-form-urlencoded");
+  xhr.responseType = 'blob';
+  xhr.onload = function(e) {
+    if (this.status == 200) {
+          myBlob = xhr.response;
+          callAWS(myBlob);
+    }
+    else
+      {
+        alert("cannot get audio blob");
+      }
+  };
+  xhr.send();
+}
+
+function callAWS(myBlob){
+
+  var myForm = document.querySelector('form');
+  formData = new FormData(myForm);
+  presignedURL = $('#upload-form').attr('action');
+
+  formData.append('file', myBlob, "sentence_audio.mp3")
+  // console.log(myBlob);
+  // console.log(presignedURL);
+  // console.log(formData);
+  // console.info("Old Form", formData.getAll("file"));
+  //   for(var pair of formData.entries()) {
+  //     console.log(pair[0]+ ', '+ pair[1]);
+  // }
+
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', presignedURL, true);
+  xhr.onerror = function (e) {
+      alert("error");
+    };
+
+    xhr.upload.addEventListener('progress', function (e) {
+      console.log(e.loaded / e.total)
+    }, false);
+
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+          if (xhr.status >= 200 && xhr.status <= 299) {
+            alert("completed");
+            aws_url = xhr.getResponseHeader("Location")
+            alert(aws_url)
+          } else {
+            alert(xhr.responseText);
+          }
+        }
+    };
+  xhr.send(formData);
+
+
+      // $.ajax({
+      //   type: 'PUT',
+      //   url: presignedURL,
+      //   // Content type must much with the parameter you signed your URL with
+      //   contentType: 'audio/mpeg',
+      //   // this flag is important, if not set, it will try to send data as a form
+      //   processData: false,
+      //   // the actual file is sent raw
+      //   data: myBlob
+      // })
+      // .success(function() {
+      //   alert('File uploaded');
+      // })
+      // .error(function(xhr) {
+      //   alert('File NOT uploaded');
+      //   console.log( arguments);
+      //   console.log(xhr.responseText);
+      // });
+}
 
 // time indicator
 function minSecStr(n) { return (n < 10 ? "0" : "") + n; };
@@ -143,7 +240,8 @@ function startRecording() {
   audioRecorder.setOptions({
     timeLimit: 1200,
     encodeAfterRecord: false,
-    progressInterval: 500,
+    progressInterval: 1000,
+    bufferSize: 1024,
     mp3: { bitRate: 160 }
   });
   audioRecorder.startRecording();

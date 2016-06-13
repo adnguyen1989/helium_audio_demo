@@ -77,10 +77,19 @@
       </div>
     </div>
 
+    <%= @s3post.url %>
+
+    <form id="upload-form" action="<%= @s3post.url %>" method="post" enctype="multipart/form-data">
+      <% @s3post.fields.each do |name, value| %>
+        <%= name %>: <input name="<%= name %>" value="<%= value %>"/><br>
+      <% end %>
+
+    </form>
+
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
     <script src="/assets/WebAudioRecorder.min.js"></script>
-
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.3.19.min.js"></script>
     <%= javascript_include_tag "RecorderDemo" %>
 
   </body>
