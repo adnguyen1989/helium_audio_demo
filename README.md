@@ -95,6 +95,12 @@ It contains:
         3. progressInterval: only applicable if #2 is true. set how quickly the progress bar updates
         4. bufferSize: use browser's default or 1024
         5. birate: the bitrate of MP3. If set at 160, one minute = 1 MB
+    4. When recording is done, the JS generates an HTML containing the save, delete, upload button
+    5. The upload works like this:
+        1. The blob is saved to an objectURL earlier. So now we get the blob (audio file) from its objectURL.
+        2. We turn the form containing AWS's pre-signed post (see below) into a FormData object.
+        3. We append the file to FormData and send it to AWS
+        4. We output the location URL of the audio
 
 How it works
 ===
